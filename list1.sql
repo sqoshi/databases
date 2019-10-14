@@ -14,7 +14,7 @@ select name,birth from pet where month(birth)<=6 ;
 select distinct species from pet where sex='m';
 
 #6
-select name,date from event where remark IS NOT NULL order by date desc;
+select name,date,remark from event where remark like "%Gave%"order by date desc;
 
 #7
 select distinct owner from pet where name like '%ffy%';
@@ -25,8 +25,10 @@ select owner, name from pet where death is null;
 #9
 select owner,count(owner) from pet group by owner having count(owner)>1;
 
-#10 VERY VERY HARD AND ITS NOT LAST XD
-select owner, name, birth from pet where death is not null and  ;
+#10
+select p.name,p.birth  from event e join pet as p on e.name=p.name 
+where e.type='birthday' order by p.name desc;
+
 
 #11 
 select name, birth from pet where birth between '1992/01/01' and '1994/06/01';
@@ -59,7 +61,9 @@ alter table event add column performer varchar(50) after date;
 SET SQL_SAFE_UPDATES = 0;
 update event SET performer=case
  when  type != 'vet' and type != 'litter' then name 
- else (case floor(rand()*2) when 0 then 'Shajiu' when 1 then 'Hu Lee Co' end)  end;
+ else (case floor(rand()*2) 
+ when 0 then 'Shajiu'
+ when 1 then 'Hu Lee Co' end)  end;
 
 #19
 update pet set owner='Diane' where species='cat';
@@ -74,7 +78,7 @@ delete from pet as  p where p.death is not null;
 alter table pet drop column death;
 
 #23
-BEGIN;
+BEGIN; #start transaction
 insert into pet (name,owner,species,sex,birth) 
 values('Newton','Bob','dog','m','2012-04-17'),
 ('Rex','Stephen','dog','m','2018-06-27'),
