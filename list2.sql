@@ -82,7 +82,6 @@ COMMIT;
 ALTER TABLE inne auto_increment=7000;
 
 #7
-
 DELIMITER //
 CREATE procedure addRandom(IN num int , IN nazwa varchar(20))
 BEGIN
@@ -99,18 +98,93 @@ BEGIN
 		ELSEIF nazwa='sport' THEN
         INSERT INTO sport(nazwa,typ,lokacja) VALUES(
 			LEFT(UUID(), 5), 
-             (case floor(rand()*3)  when 0 then 'indywidualny' when 1 then 'drużynowy' when 2 then 'mieszany'end),
-             LEFT(UUID(), 6));  
-             ELSEIF nazwa='nauka' THEN
-             INSERT INTO nauka(nazwa,lokacja) VALUES(LEFT(UUID(), 5),LEFT(UUID(), 5));
-             ELSEIF nazwa='inne' THEN
-			INSERT INTO inne(nazwa,lokacja,towarzysze) VALUES(LEFT(UUID(), 5),LEFT(UUID(), 5),LEFT(UUID(), 5));
-            elseif  nazwa='hobby' THEN
-            INSERT INTO hobby
-                
-  END IF;
-   END WHILE;
+			(case floor(rand()*3)  when 0 then 'indywidualny' when 1 then 'drużynowy' when 2 then 'mieszany'end),
+			LEFT(UUID(), 6)); 
+			ELSEIF nazwa='nauka' THEN
+			INSERT INTO nauka(nazwa,lokacja) VALUES(LEFT(UUID(), 5),LEFT(UUID(), 5));
+			ELSEIF nazwa='inne' THEN
+			INSERT INTO inne(nazwa,lokacja,towarzysze) VALUES(LEFT(UUID(), 5),LEFT(UUID(), 5),
+            (case floor(rand()*2)  when 0 then true when 1 then false end));
+			elseif  nazwa='hobby' THEN
+			set @en = floor(rand()*3 );
+				if @en=0 then set @e='sport';end if;
+				if @en=1 then set @e='nauka';end if;
+				if @en=2 then set @e='inne';end if;
+                SET FOREIGN_KEY_CHECKS=0;
+				INSERT INTO hobby(osoba,id,typ) values(floor(rand()*(select count(*) from osoba)),floor(rand()*1000000),@e);
+                SET FOREIGN_KEY_CHECKS=1;
+			END IF;
+		END WHILE;
+END//
+CALL addRandom(1000,'osoba');//
+CALL addRandom(300,'sport');//
+CALL addRandom(300,'nauka');//
+CALL addRandom(550,'inne');//
+CALL addRandom(1300,'hobby');//
+DELIMITER ;
+#drop database Hobby;
+#8
+PREPARE stmtZ8 FROM 
+"
+select nazwa
+from (Select nazwa, id, 'sport' as typ
+		from sport
+        union
+        select nazwa, id, 'nauka'
+        from nauka
+        union
+        select nazwa, id, 'inne'
+        from inne
+        ) as t inner join hobby on t.id = hobby.id
+where t.typ = ? and hobby.osoba = ?;
+";
+#9
+select * from hobby WHERE osoba = 35;
+DROP PROCEDURE IF EXISTS  findHobbies;
+DELIMITER //
+CREATE procedure findHobbies(IN id_osoby int)
+BEGIN
+Select nazwa, id, 'sport' as typ
+		from sport WHERE id =id_osoby
+        union
+        select nazwa, id, 'nauka'
+        from nauka  WHERE id =id_osoby
+        union
+        select nazwa, id, 'inne'
+        from inne  WHERE id = id_osoby
+        union 
+        select 'no - name', osoba, typ
+        from hobby WHERE osoba =id_osoby;
 END//
 DELIMITER ;
-CALL addRandom(10,'sport');
-select * from hobby;
+CALL findHobbies(35);
+
+#10
+select * from hobby WHERE osoba = 35;
+DROP PROCEDURE IF EXISTS  findHobbies;
+DELIMITER //
+CREATE procedure findHobbiesModificated(IN id_osoby int)
+BEGIN
+Select nazwa, id, 'sport' as typ
+		from sport WHERE id =id_osoby
+        union
+        select nazwa, id, 'nauka'
+        from nauka  WHERE id =id_osoby
+        union
+        select nazwa, id, 'inne'
+        from inne  WHERE id = id_osoby
+        union 
+        select 'no - name', osoba, typ
+        from hobby WHERE osoba = id_osoby
+        union 
+        select distinct species, id,'zwierzak'
+        from zwierzak WHERE id =id_osoby;
+END//
+DELIMITER ;
+#11
+delimiter //
+DROP TRIGGER IF EXISTS informations_adder;//
+CREATE TRIGGER informations_adder before INSERT on hobby FOR EACH ROW  
+		if NEW.typ = 'inne' then INSERT INTO inne(nazwa,lokacja,towarzysze) VALUES(LEFT(UUID(), 5),LEFT(UUID(), 5),
+				(case floor(rand()*2)  when 0 then true when 1 then false end));
+ END IF;//
