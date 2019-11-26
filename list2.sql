@@ -195,4 +195,10 @@ CREATE TRIGGER informations_adder before INSERT on hobby FOR EACH ROW
 		elseif NEW.typ = 'nauka' then INSERT INTO nauka(id,nazwa,lokacja) VALUES(NEW.id,LEFT(UUID(), 5),LEFT(UUID(), 5));
 		END IF;//
 delimiter ;
- #12
+														     
+  #12
+ delimiter //
+DROP TRIGGER IF EXISTS delete_sport_in_hobby;//
+CREATE TRIGGER delete_sport_in_hobby after DELETE on sport FOR EACH ROW  
+	delete from hobby where typ='sport' and hobby.id=OLD.id;//
+delimiter ;
