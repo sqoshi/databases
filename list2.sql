@@ -196,9 +196,45 @@ CREATE TRIGGER informations_adder before INSERT on hobby FOR EACH ROW
 		END IF;//
 delimiter ;
 														     
-  #12
- delimiter //
+ #12
+delimiter //
 DROP TRIGGER IF EXISTS delete_sport_in_hobby;//
 CREATE TRIGGER delete_sport_in_hobby after DELETE on sport FOR EACH ROW  
 	delete from hobby where typ='sport' and hobby.id=OLD.id;//
 delimiter ;
+
+#13
+delimiter //
+DROP TRIGGER IF EXISTS delete_nauka_in_hobby;//
+CREATE TRIGGER delete_nauka_in_hobby after DELETE on nauka FOR EACH ROW  
+	delete from hobby where typ='nauka' and hobby.id=OLD.id;//
+    
+DROP TRIGGER IF EXISTS update_nauka_in_hobby;//
+CREATE TRIGGER update_nauka_in_hobby after UPDATE on nauka FOR EACH ROW  
+	delete from hobby where typ='nauka' and hobby.id=OLD.id;//
+delimiter ;
+#=Test
+#INSERT INTO hobby(id,osoba,typ) VALUES(99921,1,'nauka');
+#UPDATE nauka set nazwa = 'analiza' where id = 99921;
+#select * from nauka where id = '99921';
+#select * from hobby where id = '99921';=#
+
+#14
+delimiter //
+DROP TRIGGER IF EXISTS delete_osoba_hobbies;//
+CREATE TRIGGER delete_osoba_hobbies after DELETE on osoba FOR EACH ROW 
+BEGIN 
+set @a = old.id;
+delete from hobby WHERE hobby.osoba = @a;
+UPDATE zwierzak SET zwierzak.id = (select osoba.id from osoba order by rand() LIMIT 1) WHERE zwierzak.id = @a;
+END//
+delimiter ;
+SET FOReign_key_Checks=0;
+
+#select * from zwierzak;
+#select * from osoba;#mamy id osoby
+#delete from osoba where id =1;
+#select * from hobby;# hobby osoby i usuwamy je
+#INSERT INTO hobby(id,osoba,typ) VALUES(1999981,555,'nauka');
+#select osoba.id from osoba order by rand() LIMIT 1;
+#drop database Hobby;
