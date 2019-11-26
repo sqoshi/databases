@@ -185,6 +185,14 @@ DELIMITER ;
 delimiter //
 DROP TRIGGER IF EXISTS informations_adder;//
 CREATE TRIGGER informations_adder before INSERT on hobby FOR EACH ROW  
-		if NEW.typ = 'inne' then INSERT INTO inne(nazwa,lokacja,towarzysze) VALUES(LEFT(UUID(), 5),LEFT(UUID(), 5),
+		if NEW.typ = 'inne' then INSERT INTO inne(id,nazwa,lokacja,towarzysze)
+        VALUES(NEW.id,LEFT(UUID(), 5),LEFT(UUID(), 5),
 				(case floor(rand()*2)  when 0 then true when 1 then false end));
- END IF;//
+		elseif NEW.typ = 'sport' then INSERT INTO sport(id,nazwa,typ,lokacja) 
+        VALUES(NEW.id,LEFT(UUID(), 5), 
+			(case floor(rand()*3)  when 0 then 'indywidualny' when 1 then 'drużynowy' when 2 then 'mieszany'end),
+			LEFT(UUID(), 6));
+		elseif NEW.typ = 'nauka' then INSERT INTO nauka(id,nazwa,lokacja) VALUES(NEW.id,LEFT(UUID(), 5),LEFT(UUID(), 5));
+		END IF;//
+delimiter ;
+ #12
