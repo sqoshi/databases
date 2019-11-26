@@ -238,3 +238,30 @@ SET FOReign_key_Checks=0;
 #INSERT INTO hobby(id,osoba,typ) VALUES(1999981,555,'nauka');
 #select osoba.id from osoba order by rand() LIMIT 1;
 #drop database Hobby;
+
+#15												    
+#mogą isnieć, zaden z adnym sie nie zazebia 
+
+#16 
+DROP view IF EXISTS hobby_view_ppl;
+CREATE VIEW hobby_view_ppl AS
+    SELECT  nazwa, id, 'sport' as typ, (SELECT count(*) FROM hobby where sport.id = hobby.id group by hobby.id ) as ilosc_osob 
+		from sport
+        union
+        select nazwa, id, 'nauka', (SELECT count(*) FROM hobby where nauka.id = hobby.id group by hobby.id)
+        from nauka
+        union
+		select nazwa, id, 'inne', (SELECT count(*) FROM hobby where inne.id = hobby.id group by hobby.id )
+        from inne order by ilosc_osob asc;
+        
+#17 
+DROP view IF EXISTS hobby_view;
+CREATE VIEW hobby_view AS 
+SELECT zwierzak.name,zwierzak.species,osoba.imię, osoba.id as osoba,hobby.id as hobby,hobby.typ from osoba 
+left join zwierzak on osoba.id = zwierzak.id 
+left JOIN hobby ON osoba.id = hobby.osoba
+left JOIN sport ON hobby.id=sport.id 
+left join nauka  on hobby.id=nauka.id
+left join inne  on hobby.id=inne.id
+group by osoba.id ;
+select * from hobby_view;
