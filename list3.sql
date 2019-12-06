@@ -170,3 +170,23 @@ END IF;
 END
 //
 delimiter ;
+
+#8
+delimiter $$
+drop procedure  if exists z8;
+create procedure z8(IN nazwa_zawodu VARCHAR(25))
+BEGIN
+IF((select count(*) from praca as p 
+join zawody as z on z.id=p.id_zawod where z.nazwa=nazwa_zawodu and zarobki*1.1 > pensja_max)>0) 
+THEN  SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'you cant give prom';
+ELSE UPDATE praca as p 
+join zawody as z on z.id=p.id_zawod set zarobki = zarobki*1.1 where z.nazwa=nazwa_zawodu;END IF;
+END
+$$
+delimiter ;
+call z8('Lekarz');
+#select * from praca as p join zawody as z on p.id_zawod=z.id order by nazwa;
+#select z.nazwa,id_osoba,zarobki,pensja_min,pensja_max,zarobki*1.1 as zarobki_boosted from praca as p 
+#join zawody as z on z.id=p.id_zawod where z.nazwa='Lekarz' and zarobki*1.1 > pensja_max;
+
+#9
