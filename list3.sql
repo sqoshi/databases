@@ -171,6 +171,42 @@ END
 //
 delimiter ;
 
+#7
+DROP FUNCTION IF EXISTS calcNewton;
+DELIMITER $$
+CREATE FUNCTION calcNewton ( nn int, kk int )
+RETURNS INT
+BEGIN
+	DECLARE p int;
+    DECLARE counter int DEFAULT 0;
+    DECLARE wynik int DEFAULT 1;
+	IF kk = 0
+	THEN
+		RETURN '1';
+	ELSE
+		SET p = nn - kk;
+        
+        WITH RECURSIVE newtonV2 AS
+		(
+			SELECT p AS n, 0 AS k, cast(1 AS char(20)) AS w
+			UNION ALL
+			SELECT  n + 1, k+1, w * (n + 1) / (k + 1)
+			FROM newtonV2 WHERE n <= nn
+		)
+		SELECT w FROM newtonV2 WHERE n = nn INTO wynik;
+        
+		RETURN wynik;
+	END IF;
+END $$
+DELIMITER ;
+WITH RECURSIVE newton AS
+(
+	SELECT 1 AS n, 0 AS k, cast(1 AS char(20)) AS w
+	UNION ALL
+	SELECT  n + floor(k/n), MOD(k+1, n+1), calcNewton(n + floor(k/n), MOD(k+1, n+1)) FROM newton WHERE n < 13
+)
+SELECT * FROM newton WHERE n IN (5,7,8,9) AND k IN (2,3,4,5);
+
 #8
 delimiter $$
 drop procedure  if exists z8;
@@ -190,3 +226,12 @@ call z8('Lekarz');
 #join zawody as z on z.id=p.id_zawod where z.nazwa='Lekarz' and zarobki*1.1 > pensja_max;
 
 #9
+
+#10
+/*mysqldump -u root -p Hobby > Hobby.sql
+DROP DATABASE Hobby
+CREATE DATABASE Hobby
+mysql -u root -p Hobby < Hobby.sql
+Backup pelny obejmuje backup calej bazy danych
+Backup roznicowy, zapisuje zmiany, ktore zaszly od pierwszego pelnego backupu
+Jest szybszy od backupu pelnego, nie mniej pelny backup jest zalecanym stylem*/
