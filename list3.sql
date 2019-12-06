@@ -78,3 +78,87 @@ END;
 call connect_praca_zawod();
 $$
 delimiter ;
+
+
+
+#4
+delimiter $$
+drop procedure if exists z4;
+CREATE PROCEDURE z4 (IN kol ENUM('id', 'imie', 'dataUrodzenia', 'plec','nazwisko'), IN agg VARCHAR(20), OUT X VARCHAR(100))
+BEGIN
+    SET @temp = NULL;
+    SET @arg = kol;
+    CASE LOWER(agg)
+        WHEN 'avg' THEN
+			IF(kol = 'dataUrodzenia') THEN
+            SET @query = CONCAT('SELECT YEAR(CURDATE()) - AVG(YEAR(DATEDIFF(CURDATE() ,', kol, ')))	 FROM osoba INTO @temp');
+            PREPARE stmt FROM @query;
+            EXECUTE stmt;
+            DEALLOCATE PREPARE stmt;
+            END IF;
+        WHEN 'count' THEN
+			IF(kol = 'imie' OR kol = 'plec') THEN
+            SET @query = CONCAT('SELECT COUNT(', kol, ') FROM osoba INTO @temp');
+            PREPARE stmt FROM @query;
+            EXECUTE stmt;
+            DEALLOCATE PREPARE stmt;
+            END IF;
+        WHEN 'max' THEN
+			IF(kol = 'dataUrodzenia') THEN
+            SET @query = CONCAT('SELECT MAX(', kol, ') FROM osoba INTO @temp');
+            PREPARE stmt FROM @query;
+            EXECUTE stmt;
+            DEALLOCATE PREPARE stmt;
+            END IF;
+        WHEN 'min' THEN
+			IF(kol = 'dataUrodzenia') THEN
+            SET @query = CONCAT('SELECT MIN(', kol, ') FROM osoba INTO @temp');
+            PREPARE stmt FROM @query;
+            EXECUTE stmt;
+            DEALLOCATE PREPARE stmt;
+            END IF;
+        WHEN 'group_concat' THEN
+			IF(kol <> 'id') THEN
+            SET @query = CONCAT('SELECT GROUP_CONCAT(', kol, ') FROM osoba INTO @temp');
+            PREPARE stmt FROM @query;
+            EXECUTE stmt;
+            DEALLOCATE PREPARE stmt;
+            END IF;
+		WHEN 'std' THEN
+			IF(kol = 'dataUrodzenia') THEN
+            SET @query = CONCAT('SELECT STD( YEAR( DATEDIFF( CURDATE(),', kol, '))) FROM osoba INTO @temp');
+            PREPARE stmt FROM @query;
+            EXECUTE stmt;
+            DEALLOCATE PREPARE stmt;
+            END IF;
+		WHEN 'var_pop' THEN
+			IF(kol = 'dataUrodzenia') THEN
+            SET @query = CONCAT('SELECT VAR_POP( YEAR (DATEDIFF( CURDATE(),', kol, '))) FROM osoba INTO @temp');
+            PREPARE stmt FROM @query;
+            EXECUTE stmt;
+            DEALLOCATE PREPARE stmt;
+            END IF;
+        ELSE
+            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Function Fail';
+    END CASE;
+    SET X = @temp;
+END
+$$
+DELIMITER ;
+set @wynik ='';
+CALL z4('dataUrodzenia', 'avg', @wynik);
+SELECT @wynik;
+
+#5
+delimiter //
+CREATE TABLE IF NOT EXISTS hasła(
+id_osoby INT,
+hash_hasła varchar(25));
+create procedure find_birthday(IN imię VARCHAR(25), int hasło VARCHAR(25))
+BEGIN
+set @a = sha1(hasło);
+
+select dataUrodzenia from osoba where 
+END
+//
+delimiter ;
