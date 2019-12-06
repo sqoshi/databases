@@ -174,6 +174,7 @@ delimiter ;
 #7
 DROP FUNCTION IF EXISTS calcNewton;
 DELIMITER $$
+SET GLOBAL log_bin_trust_function_creators = 1;
 CREATE FUNCTION calcNewton ( nn int, kk int )
 RETURNS INT
 BEGIN
@@ -194,7 +195,6 @@ BEGIN
 			FROM newtonV2 WHERE n <= nn
 		)
 		SELECT w FROM newtonV2 WHERE n = nn INTO wynik;
-        
 		RETURN wynik;
 	END IF;
 END $$
