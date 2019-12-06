@@ -153,12 +153,20 @@ SELECT @wynik;
 delimiter //
 CREATE TABLE IF NOT EXISTS hasła(
 id_osoby INT,
-hash_hasła varchar(25));
-create procedure find_birthday(IN imię VARCHAR(25), int hasło VARCHAR(25))
+hash_hasła varchar(200));//
+drop procedure if EXISTS find_birthday;
+create procedure find_birthday(IN imię VARCHAR(25), IN hasło VARCHAR(25))
 BEGIN
-set @a = sha1(hasło);
-
-select dataUrodzenia from osoba where 
+IF((select count(*) from hasła where md5(hasło) IN (hash_hasła))>0) THEN
+select o.dataUrodzenia from osoba as o 
+join hasła as h on o.id=id_osoby 
+where h.hash_hasła = md5(hasło) and o.imię = imię;
+ELSE select date_format(
+    from_unixtime(
+         rand() * 
+            (unix_timestamp(date(NOW()))) + 
+             unix_timestamp(date(NOW())-interval 100 YEAR)), '%Y-%m-%d') as randomdate;
+END IF;
 END
 //
 delimiter ;
