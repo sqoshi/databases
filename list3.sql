@@ -221,17 +221,37 @@ END
 $$
 delimiter ;
 call z8('Lekarz');
+
 #select * from praca as p join zawody as z on p.id_zawod=z.id order by nazwa;
 #select z.nazwa,id_osoba,zarobki,pensja_min,pensja_max,zarobki*1.1 as zarobki_boosted from praca as p 
 #join zawody as z on z.id=p.id_zawod where z.nazwa='Lekarz' and zarobki*1.1 > pensja_max;
+#select z.nazwa,id_osoba,zarobki,pensja_min,pensja_max,(pensja_max-pensja_max)/0.03 as delta_F_e from praca as p 
+#join zawody as z on z.id=p.id_zawod where z.nazwa='Lekarz';
+/*select (AVG(zarobki)+
+(select exp(1/((pensja_max-pensja_min)/0.03)) as 'laplace(o,b)' 
+from praca as p join zawody as z on z.id=p.id_zawod where z.nazwa='Lekarz' limit 1)) 
+from praca as p join zawody as z on z.id=p.id_zawod where z.nazwa='Lekarz';
+select z.nazwa,id_osoba,zarobki,pensja_min,pensja_max,((pensja_max-pensja_min)/0.03)  as delta_F_e,
+exp(1/((pensja_max-pensja_min)/0.03)) as 'laplace(o,b)'
+from praca as p join zawody as z on z.id=p.id_zawod where z.nazwa='Lekarz' limit 1;*/
 
 #9
+delimiter $$
+create procedure z9(IN zawod varchar(25))
+BEGIN
+select (AVG(zarobki)+
+(select exp(1/((pensja_max-pensja_min)/0.03)) as 'laplace(o,b)' 
+from praca as p join zawody as z on z.id=p.id_zawod where z.nazwa = zawod limit 1)) 
+from praca as p join zawody as z on z.id=p.id_zawod where z.nazwa = zawod;
+END
+$$
+delimiter ;
 
+CALL z9('Prawnik');
 #10
 /*mysqldump -u root -p Hobby > Hobby.sql
 DROP DATABASE Hobby
 CREATE DATABASE Hobby
-mysql -u root -p Hobby < Hobby.sql
+mysql -u root -p hobby_copy < Hobby.sql
 Backup pelny obejmuje backup calej bazy danych
-Backup roznicowy, zapisuje zmiany, ktore zaszly od pierwszego pelnego backupu
-Jest szybszy od backupu pelnego, nie mniej pelny backup jest zalecanym stylem*/
+Backup roznicowy, zapisuje zmiany, ktore zaszly od pierwszego pelnego backupu*/
