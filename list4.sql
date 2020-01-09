@@ -30,7 +30,7 @@ db.zwierzęta.insert(
 
 #Z4 prz y uzyciu json-generator.com
 [
-  '{{repeat(50, 51)}}',
+  '{{repeat(52, 53)}}',
   {
     _id: '{{objectId()}}',
     index: '{{index()}}',
@@ -46,10 +46,52 @@ db.zwierzęta.insert(
           '{{country()}}',
           '{{country()}}'
                            
-      ],
-	Kraj: ' {{country()}}',    
+      ],   
     gatunek: '{{random("Pies","Kot","Koza","Smok", "Mysz", "Lew", "Wąż" ,"Ryba", "Słoń")}}',
     imieZwierzaka: '{{firstName()}}'
    
   }
 ]
+#Z5
+
+*wszystkie 
+db.getCollectionNames().forEach(function(collection) {
+print("Documents count: "+ db[collection].count() +" for collection "+ collection); });
+
+*niepuste
+db.getCollectionNames().forEach(function(collection) { 
+if( db[collection].count()>0) { 
+    print("Documents count: "+ db[collection].count() +" for collection: "+ collection);
+} 
+});
+
+#z6
+db.osoby.find({"gatunek" : "Kot"},{imieZwierzaka:1,imie:1,_id:0}).pretty()
+
+#z7
+db.osoby.find({"imie" : "Jan", "nationality" : "Poland"}, {_id:0}).pretty()
+db.osoby.find({ "narodowosc" : { $all : [/.*/,/.*/] } }, {_id:0}).pretty()
+
+#10
+db.osoby.remove(
+   { $or : [
+   {"zainteresowania" : {$all : [/.*/, "koszykówka" ]}},
+   { "zainteresowania" : {$all : ["hokej", /.*/ ]}}
+   ]
+   }   
+)
+
+#11
+ db.osoby.update(
+   { $or : [
+   {"zainteresowania" : {$all : ["Strzelectwo", "Narciarstwo" ]}},
+   ]
+   },
+   {$set : { "zainteresowania" : "biatlon" } },
+   { multi : true }
+)
+
+
+
+
+
