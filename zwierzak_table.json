@@ -1,9 +1,0 @@
-[{"name":"Fluffy", "species":"cat", "sex":"f", "birth":"1993-02-04", "death":"", "id":1},
- {"name":"Claws", "species":"cat", "sex":"m", "birth":"1994-03-17", "death":"", "id":2},
- {"name":"Buffy", "species":"dog", "sex":"f", "birth":"1989-05-13", "death":"", "id":1},
- {"name":"Fang", "species":"dog", "sex":"m", "birth":"1990-08-27", "death":"", "id":3},
- {"name":"Bowser", "species":"dog", "sex":"m", "birth":"1979-08-31", "death":"1995-07-29", "id":4},
- {"name":"Chirpy", "species":"bird", "sex":"f", "birth":"1998-09-11", "death":"", "id":2},
- {"name":"Whistler", "species":"bird", "sex":"", "birth":"1997-12-09", "death":"", "id":2},
- {"name":"Slim", "species":"snake", "sex":"m", "birth":"1996-04-29", "death":"", "id":3},
- {"name":"Puffball", "species":"hamster", "sex":"f", "birth":"1999-03-30", "death":"", "id":4}]
